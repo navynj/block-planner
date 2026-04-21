@@ -156,47 +156,35 @@
       "fest-d2"
     ],
     "8-30": [
-      "church-1",
-      "f5"
+      "church-1"
     ],
     "8-29": [
       "f3"
-    ],
-    "8-28": [
-      "f2",
-      "f1"
-    ],
-    "8-31": [
-      "f4",
-      "escape"
-    ],
-    "8-27": [
-      "ilsan",
-      "home-meal"
-    ],
-    "9-1": [
-      "b_1776802914056",
-      "mom"
     ],
     "9-2": [
       "poolvilla"
     ],
     "9-3": [
-      "b_1776798502493",
-      "b_1776798401527",
-      "jjim-jazz"
-    ],
-    "9-4": [
-      "yeonnam",
-      "rihwain",
-      "musical-2"
-    ],
-    "9-7": [
-      "musical-1",
-      "matcha"
+      "b_1776798502493"
     ]
   },
   "pool": [
-    "f6"
+    "f6",
+    "matcha",
+    "musical-1",
+    "musical-2",
+    "rihwain",
+    "b_1776798401527",
+    "jjim-jazz",
+    "yeonnam",
+    "ilsan",
+    "b_1776802914056",
+    "escape",
+    "mom",
+    "home-meal",
+    "f2",
+    "f4",
+    "f1",
+    "f5"
   ]
 }
