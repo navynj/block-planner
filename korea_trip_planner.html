@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한국 여행 일정 플래너 — 2026/8/25 ~ 9/8</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --surface-2: #f1efe8;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.2);
+    --text: #1a1a1a;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --accent: #534ab7;
+    --accent-bg: #eeedfe;
+    --sun: #E24B4A;
+    --sat: #185FA5;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1b17;
+      --surface: #2a2925;
+      --surface-2: #232220;
+      --border: rgba(255,255,255,0.1);
+      --border-strong: rgba(255,255,255,0.2);
+      --text: #f0efea;
+      --text-secondary: #a8a59e;
+      --text-tertiary: #75736d;
+      --accent: #afa9ec;
+      --accent-bg: #3c3489;
+      --sun: #f09595;
+      --sat: #85B7EB;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 16px;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 0.5px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  button:hover { background: var(--surface-2); }
+  button:active { transform: scale(0.98); }
+  button.primary { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+
+  .planner {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    .planner { grid-template-columns: 1fr; }
+  }
+
+  .cal-wrap { min-width: 0; }
+  .month-label {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0 0 8px;
+  }
+  .grid7 {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    margin-bottom: 16px;
+  }
+  .dow {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 4px 0;
+  }
+  .dow.sun { color: var(--sun); }
+  .dow.sat { color: var(--sat); }
+
+  .day {
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+    padding: 4px;
+    min-height: 100px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .day.empty { visibility: hidden; }
+  .day.dim { opacity: 0.35; background: transparent; }
+  .day.weekend { background: var(--surface-2); }
+  .day.dragover { background: var(--accent-bg); border-color: var(--accent); }
+  .day.trip-start { border-color: var(--accent); border-width: 1px; }
+
+  .day-num {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .day-num.sun { color: var(--sun); }
+  .day-num.sat { color: var(--sat); }
+
+  .pool {
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    min-height: 500px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+  }
+  .pool-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pool-count {
+    background: var(--surface);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+
+  .block {
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: grab;
+    line-height: 1.4;
+    user-select: none;
+    border: 0.5px solid transparent;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .block:active { cursor: grabbing; }
+  .block.dragging { opacity: 0.4; }
+  .block .title { font-weight: 500; padding-right: 28px; }
+  .block .sub { font-size: 10px; opacity: 0.8; margin-top: 2px; padding-right: 28px; word-break: break-word; }
+
+  .block-actions {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: flex;
+    gap: 2px;
+    opacity: 0.5;
+  }
+  .block:hover .block-actions { opacity: 1; }
+  .block-btn {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.5);
+  }
+  .block-btn:hover { background: rgba(0,0,0,0.1); }
+
+  .b-fixed { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; }
+  .b-date { background: #FAECE7; color: #993C1D; }
+  .b-friend { background: #E1F5EE; color: #085041; }
+  .b-family { background: #FAEEDA; color: #854F0B; }
+  .b-church { background: #E6F1FB; color: #185FA5; }
+  .b-festival { background: #FBEAF0; color: #993556; }
+  .b-pool { background: #EAF3DE; color: #3B6D11; }
+  .b-opt { background: #F1EFE8; color: #5F5E5A; }
+
+  @media (prefers-color-scheme: dark) {
+    .b-fixed { background: #3C3489; color: #CECBF6; border-color: #7F77DD; }
+    .b-date { background: #712B13; color: #F5C4B3; }
+    .b-friend { background: #085041; color: #9FE1CB; }
+    .b-family { background: #633806; color: #FAC775; }
+    .b-church { background: #0C447C; color: #B5D4F4; }
+    .b-festival { background: #72243E; color: #F4C0D1; }
+    .b-pool { background: #27500A; color: #C0DD97; }
+    .b-opt { background: #444441; color: #D3D1C7; }
+    .block-btn { background: rgba(0,0,0,0.3); }
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-backdrop.active { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    width: 100%;
+    max-width: 420px;
+  }
+  .modal h3 { margin: 0 0 12px; font-size: 15px; font-weight: 500; }
+  .field { margin-bottom: 10px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+  .modal-actions .danger { color: var(--sun); border-color: var(--sun); }
+
+  .footer-hint {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 16px;
+    line-height: 1.7;
+  }
+
+  .section-divider {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-tertiary);
+    margin: 8px 2px 4px;
+    padding-top: 6px;
+    border-top: 0.5px dashed var(--border);
+  }
+  .section-divider:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+</style>
+</head>
+<body>
+
+<h1>한국 여행 일정 플래너</h1>
+<p class="subtitle">2026/8/25 (화) 도착 — 9/8 (화) 출발</p>
+
+<div class="toolbar">
+  <button class="primary" onclick="openAddModal()">+ 새 블럭 추가</button>
+  <button onclick="exportJSON()">JSON 내보내기</button>
+  <button onclick="document.getElementById('import-file').click()">JSON 가져오기</button>
+  <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)">
+  <button onclick="exportText()">텍스트 복사</button>
+  <button onclick="resetAll()" style="margin-left: auto; color: var(--sun);">전체 초기화</button>
+</div>
+
+<div class="planner">
+  <div class="cal-wrap">
+    <div class="month-label">8월 2026</div>
+    <div class="grid7" id="aug-grid"></div>
+    <div class="month-label">9월 2026</div>
+    <div class="grid7" id="sep-grid"></div>
+
+    <div class="footer-hint">
+      💡 드래그: 우측 블럭을 날짜로 끌어다 놓으세요 · 블럭 위 <strong>✎</strong> 아이콘으로 편집, <strong>×</strong>로 풀 복귀<br>
+      💾 자동 저장: 브라우저에 저장돼서 새로고침해도 유지됩니다 · 다른 기기로 옮기려면 JSON 내보내기 사용
+    </div>
+  </div>
+
+  <div class="pool">
+    <div class="pool-title">
+      <span>미배치 일정</span>
+      <span class="pool-count" id="pool-count">0</span>
+    </div>
+    <div id="pool-list"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">블럭 편집</h3>
+    <div class="field">
+      <label>제목</label>
+      <input type="text" id="field-title" placeholder="예: ♥ 연남 데이트">
+    </div>
+    <div class="field">
+      <label>디테일 (코스, 메모 등)</label>
+      <textarea id="field-sub" placeholder="예: 파스타야 → 오버딥 카페 → 쏘블루 서점"></textarea>
+    </div>
+    <div class="field">
+      <label>카테고리 (색상)</label>
+      <select id="field-type">
+        <option value="date">♥ 데이트 (코랄)</option>
+        <option value="friend">● 친구 (민트)</option>
+        <option value="family">▲ 가족 (앰버)</option>
+        <option value="church">+ 교회 (블루)</option>
+        <option value="festival">★ 페스티벌 (핑크)</option>
+        <option value="pool">◆ 풀빌라 (그린)</option>
+        <option value="opt">⌂ 기타/옵션 (그레이)</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button id="modal-delete" class="danger" onclick="deleteFromModal()" style="margin-right: auto;">삭제</button>
+      <button onclick="closeModal()">취소</button>
+      <button class="primary" onclick="saveModal()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LS_KEY = 'korea-trip-2026-plan-v2';
+
+const fixedEvents = {
+  '8-25': [{ id: '_arrive', type: 'fixed', title: '✈ 새벽 4:25 도착', sub: '일산 귀가', locked: true }],
+  '9-8': [{ id: '_depart', type: 'fixed', title: '✈ 출발 비행기', sub: '', locked: true }]
+};
+
+const defaultBlocks = [
+  { id: 'ilsan', type: 'date', title: '♥ 일산 데이트', sub: '교보문고 → 포폴로피자 → 호수공원 → 지느러미바' },
+  { id: 'yeonnam', type: 'date', title: '♥ 연남 코스', sub: '파스타야 → 오버딥 카페 → 쏘블루 서점' },
+  { id: 'poolvilla', type: 'pool', title: '◆ 풀빌라 1박 체크인', sub: '가평/포천' },
+  { id: 'poolout-fest1', type: 'festival', title: '◆ 풀빌라 체크아웃 + ★ 페스티벌 Day1', sub: '사운드플래닛 9/5' },
+  { id: 'fest-d2', type: 'festival', title: '★ 사운드플래닛 Day2', sub: '9/6' },
+  { id: 'jjim-jazz', type: 'date', title: '♥ 찜질방 + 재즈바', sub: '후암동 사운드독' },
+  { id: 'musical-1', type: 'date', title: '♥ 뮤지컬 푸른꽃', sub: '예매 확인 필요' },
+  { id: 'musical-2', type: 'date', title: '♥ 뮤지컬 다이브', sub: '예매 확인 필요' },
+  { id: 'escape', type: 'date', title: '♥ 머더파커 방탈출', sub: '잠실점' },
+  { id: 'gyobo', type: 'date', title: '♥ 교보문고', sub: '광화문 or 일산 백석' },
+  { id: 'mom', type: 'family', title: '▲ 남친 어머니 뵙기', sub: '' },
+  { id: 'home-meal', type: 'family', title: '▲ 우리집 식사자리', sub: '남친 초대' },
+  { id: 'church-1', type: 'church', title: '+ 교회 출석 1주차', sub: '일요일' },
+  { id: 'church-2', type: 'church', title: '+ 교회 출석 2주차', sub: '일요일' },
+  { id: 'f1', type: 'friend', title: '● 친구 1', sub: '' },
+  { id: 'f2', type: 'friend', title: '● 친구 2', sub: '' },
+  { id: 'f3', type: 'friend', title: '● 친구 3', sub: '' },
+  { id: 'f4', type: 'friend', title: '● 친구 4', sub: '' },
+  { id: 'f5', type: 'friend', title: '● 친구 5', sub: '' },
+  { id: 'f6', type: 'friend', title: '● 친구 6', sub: '' },
+  { id: 'rest', type: 'opt', title: '⌂ 시차 적응·휴식', sub: '' },
+  { id: 'matcha', type: 'opt', title: '♥ 말차·테린느 맛집', sub: 'Optional' },
+  { id: 'rihwain', type: 'opt', title: '♥ 리화인 와플', sub: 'Optional' },
+  { id: 'clam', type: 'opt', title: '♥ 바지락 칼국수', sub: '' },
+  { id: 'deungchon', type: 'opt', title: '♥ 등촌칼국수 일산본점', sub: 'Optional' }
+];
+
+let state = loadState();
+let editingBlockId = null;
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.blocks && parsed.placed !== undefined && parsed.pool) return parsed;
+    }
+  } catch(e) {}
+  return {
+    blocks: defaultBlocks.reduce((acc, b) => { acc[b.id] = b; return acc; }, {}),
+    placed: {},
+    pool: defaultBlocks.map(b => b.id)
+  };
+}
+
+function saveState() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+function buildMonth(gridEl, startDay, daysInMonth, monthNum) {
+  gridEl.innerHTML = '';
+  const dows = ['일','월','화','수','목','금','토'];
+  dows.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'dow' + (i === 0 ? ' sun' : i === 6 ? ' sat' : '');
+    el.textContent = d;
+    gridEl.appendChild(el);
+  });
+  for (let i = 0; i < startDay; i++) {
+    const e = document.createElement('div');
+    e.className = 'day empty';
+    gridEl.appendChild(e);
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    const dow = (startDay + d - 1) % 7;
+    const key = monthNum + '-' + d;
+    const isTripDay = (monthNum === 8 && d >= 25) || (monthNum === 9 && d <= 8);
+    const isStart = (monthNum === 8 && d === 25) || (monthNum === 9 && d === 8);
+    cell.className = 'day' + (isTripDay ? '' : ' dim') + (dow === 0 || dow === 6 ? ' weekend' : '') + (isStart ? ' trip-start' : '');
+    cell.dataset.dateKey = key;
+
+    const num = document.createElement('div');
+    num.className = 'day-num' + (dow === 0 ? ' sun' : dow === 6 ? ' sat' : '');
+    num.textContent = d;
+    cell.appendChild(num);
+
+    if (isTripDay) {
+      cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('dragover'); });
+      cell.addEventListener('dragleave', () => cell.classList.remove('dragover'));
+      cell.addEventListener('drop', e => {
+        e.preventDefault();
+        cell.classList.remove('dragover');
+        const id = e.dataTransfer.getData('text/plain');
+        placeBlock(id, key);
+      });
+    }
+    gridEl.appendChild(cell);
+  }
+}
+
+function placeBlock(id, dateKey) {
+  for (const k in state.placed) {
+    state.placed[k] = state.placed[k].filter(x => x !== id);
+    if (state.placed[k].length === 0) delete state.placed[k];
+  }
+  state.pool = state.pool.filter(x => x !== id);
+  if (!state.placed[dateKey]) state.placed[dateKey] = [];
+  state.placed[dateKey].push(id);
+  saveState();
+  render();
+}
+
+function returnToPool(id) {
+  for (const k in state.placed) {
+    state.placed[k] = state.placed[k].filter(x => x !== id);
+    if (state.placed[k].length === 0) delete state.placed[k];
+  }
+  if (!state.pool.includes(id)) state.pool.push(id);
+  saveState();
+  render();
+}
+
+function makeBlockEl(block, inDay, locked) {
+  const el = document.createElement('div');
+  el.className = 'block b-' + block.type;
+  el.draggable = !locked;
+  el.dataset.blockId = block.id;
+
+  const title = document.createElement('div');
+  title.className = 'title';
+  title.textContent = block.title;
+  el.appendChild(title);
+
+  if (block.sub) {
+    const sub = document.createElement('div');
+    sub.className = 'sub';
+    sub.textContent = block.sub;
+    el.appendChild(sub);
+  }
+
+  if (!locked) {
+    const actions = document.createElement('div');
+    actions.className = 'block-actions';
+
+    const editBtn = document.createElement('div');
+    editBtn.className = 'block-btn';
+    editBtn.innerHTML = '✎';
+    editBtn.title = '편집';
+    editBtn.onclick = e => { e.stopPropagation(); openEditModal(block.id); };
+    actions.appendChild(editBtn);
+
+    if (inDay) {
+      const rmBtn = document.createElement('div');
+      rmBtn.className = 'block-btn';
+      rmBtn.innerHTML = '×';
+      rmBtn.title = '풀로 되돌리기';
+      rmBtn.onclick = e => { e.stopPropagation(); returnToPool(block.id); };
+      actions.appendChild(rmBtn);
+    }
+    el.appendChild(actions);
+
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', block.id);
+      el.classList.add('dragging');
+    });
+    el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  }
+  return el;
+}
+
+function render() {
+  document.querySelectorAll('.day[data-date-key]').forEach(cell => {
+    const key = cell.dataset.dateKey;
+    [...cell.querySelectorAll('.block')].forEach(b => b.remove());
+
+    const fixed = fixedEvents[key] || [];
+    fixed.forEach(f => cell.appendChild(makeBlockEl(f, true, true)));
+
+    const ids = state.placed[key] || [];
+    ids.forEach(id => {
+      const b = state.blocks[id];
+      if (b) cell.appendChild(makeBlockEl(b, true, false));
+    });
+  });
+
+  const poolList = document.getElementById('pool-list');
+  poolList.innerHTML = '';
+  const typeOrder = ['date','festival','pool','family','church','friend','opt'];
+  const typeLabels = {
+    date: '데이트',
+    festival: '페스티벌',
+    pool: '풀빌라',
+    family: '가족',
+    church: '교회',
+    friend: '친구',
+    opt: '기타·옵션'
+  };
+
+  const grouped = {};
+  state.pool.forEach(id => {
+    const b = state.blocks[id];
+    if (!b) return;
+    if (!grouped[b.type]) grouped[b.type] = [];
+    grouped[b.type].push(b);
+  });
+
+  typeOrder.forEach(type => {
+    if (!grouped[type] || grouped[type].length === 0) return;
+    const divider = document.createElement('div');
+    divider.className = 'section-divider';
+    divider.textContent = typeLabels[type];
+    poolList.appendChild(divider);
+    grouped[type].forEach(b => poolList.appendChild(makeBlockEl(b, false, false)));
+  });
+
+  document.getElementById('pool-count').textContent = state.pool.length;
+
+  const pool = document.querySelector('.pool');
+  pool.ondragover = e => { e.preventDefault(); };
+  pool.ondrop = e => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('text/plain');
+    if (id && !id.startsWith('_')) returnToPool(id);
+  };
+}
+
+function openEditModal(id) {
+  editingBlockId = id;
+  const b = state.blocks[id];
+  document.getElementById('modal-title').textContent = '블럭 편집';
+  document.getElementById('field-title').value = b.title;
+  document.getElementById('field-sub').value = b.sub || '';
+  document.getElementById('field-type').value = b.type;
+  document.getElementById('modal-delete').style.display = '';
+  document.getElementById('modal').classList.add('active');
+  setTimeout(() => document.getElementById('field-title').focus(), 50);
+}
+
+function openAddModal() {
+  editingBlockId = null;
+  document.getElementById('modal-title').textContent = '새 블럭 추가';
+  document.getElementById('field-title').value = '';
+  document.getElementById('field-sub').value = '';
+  document.getElementById('field-type').value = 'date';
+  document.getElementById('modal-delete').style.display = 'none';
+  document.getElementById('modal').classList.add('active');
+  setTimeout(() => document.getElementById('field-title').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  editingBlockId = null;
+}
+
+function saveModal() {
+  const title = document.getElementById('field-title').value.trim();
+  const sub = document.getElementById('field-sub').value.trim();
+  const type = document.getElementById('field-type').value;
+  if (!title) { alert('제목을 입력해주세요'); return; }
+
+  if (editingBlockId) {
+    state.blocks[editingBlockId] = { ...state.blocks[editingBlockId], title, sub, type };
+  } else {
+    const newId = 'b_' + Date.now();
+    state.blocks[newId] = { id: newId, title, sub, type };
+    state.pool.push(newId);
+  }
+  saveState();
+  render();
+  closeModal();
+}
+
+function deleteFromModal() {
+  if (!editingBlockId) return;
+  if (!confirm('이 블럭을 완전히 삭제할까요?')) return;
+  for (const k in state.placed) {
+    state.placed[k] = state.placed[k].filter(x => x !== editingBlockId);
+    if (state.placed[k].length === 0) delete state.placed[k];
+  }
+  state.pool = state.pool.filter(x => x !== editingBlockId);
+  delete state.blocks[editingBlockId];
+  saveState();
+  render();
+  closeModal();
+}
+
+function resetAll() {
+  if (!confirm('모든 일정을 초기 상태로 되돌릴까요? (편집·추가한 내용도 사라집니다)')) return;
+  state = {
+    blocks: defaultBlocks.reduce((acc, b) => { acc[b.id] = b; return acc; }, {}),
+    placed: {},
+    pool: defaultBlocks.map(b => b.id)
+  };
+  saveState();
+  render();
+}
+
+function exportJSON() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'korea-trip-plan-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.blocks && data.placed !== undefined && data.pool) {
+        if (confirm('현재 일정을 덮어쓸까요?')) {
+          state = data;
+          saveState();
+          render();
+        }
+      } else {
+        alert('올바른 형식의 파일이 아닙니다');
+      }
+    } catch(err) {
+      alert('파일을 읽을 수 없습니다: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function exportText() {
+  const lines = ['=== 한국 여행 일정 (2026/8/25~9/8) ==='];
+  const keys = Object.keys(state.placed).sort((a, b) => {
+    const [ma, da] = a.split('-').map(Number);
+    const [mb, db] = b.split('-').map(Number);
+    return (ma * 100 + da) - (mb * 100 + db);
+  });
+  const tripDates = [];
+  for (let d = 25; d <= 31; d++) tripDates.push('8-' + d);
+  for (let d = 1; d <= 8; d++) tripDates.push('9-' + d);
+  const dowNames = ['일','월','화','수','목','금','토'];
+
+  tripDates.forEach(k => {
+    const [m, d] = k.split('-').map(Number);
+    const date = new Date(2026, m - 1, d);
+    const dow = dowNames[date.getDay()];
+    lines.push(`\n${m}/${d} (${dow})`);
+    const fixed = fixedEvents[k] || [];
+    fixed.forEach(f => lines.push(`  • ${f.title}${f.sub ? ' — ' + f.sub : ''}`));
+    const ids = state.placed[k] || [];
+    ids.forEach(id => {
+      const b = state.blocks[id];
+      if (b) lines.push(`  • ${b.title}${b.sub ? ' — ' + b.sub : ''}`);
+    });
+  });
+
+  if (state.pool.length) {
+    lines.push('\n=== 미배치 ===');
+    state.pool.forEach(id => {
+      const b = state.blocks[id];
+      if (b) lines.push(`  • ${b.title}${b.sub ? ' — ' + b.sub : ''}`);
+    });
+  }
+
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    alert('클립보드에 복사되었습니다');
+  }).catch(() => {
+    prompt('복사하려면 Ctrl+C (Cmd+C)를 누르세요:', text);
+  });
+}
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+buildMonth(document.getElementById('aug-grid'), 6, 31, 8);
+buildMonth(document.getElementById('sep-grid'), 2, 30, 9);
+render();
+</script>
+
+</body>
+</html>
