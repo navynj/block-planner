@@ -212,7 +212,7 @@
     ]
   },
   "pool": [
-    "rihwain",
-    "rest"
+    "rest",
+    "rihwain"
   ]
 }
