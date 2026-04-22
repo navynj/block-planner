@@ -10,7 +10,7 @@
       "id": "yeonnam",
       "type": "date",
       "title": "♥ 연남",
-      "sub": "바이어리셔 말차 테린느 → 연희 쏘블루 서점 → 한우 오마카세 우뮬 → 연남 오버딥 카페"
+      "sub": "연희 쏘블루 서점 → 한우 오마카세 우뮬 → 연남 오버딥 카페"
     },
     "poolout-fest1": {
       "id": "poolout-fest1",
@@ -94,7 +94,7 @@
       "id": "f5",
       "type": "friend",
       "title": "● 수민",
-      "sub": ""
+      "sub": "바이어리셔 말차 테린느"
     },
     "f6": {
       "id": "f6",
@@ -188,6 +188,7 @@
     ],
     "8-31": [
       "matcha",
+      "musical-2",
       "f2"
     ],
     "9-1": [
@@ -206,13 +207,12 @@
     ],
     "9-2": [
       "b_1776833311144",
+      "musical-1",
       "jjim-jazz"
     ]
   },
   "pool": [
     "rihwain",
-    "musical-2",
-    "musical-1",
     "rest"
   ]
 }
