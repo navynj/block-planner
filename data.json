@@ -12,12 +12,6 @@
       "title": "♥ 연남",
       "sub": "바이어리셔 말차 테린느 → 연희 쏘블루 서점 → 한우 오마카세 우뮬 → 연남 오버딥 카페"
     },
-    "poolvilla": {
-      "id": "poolvilla",
-      "type": "pool",
-      "title": "◆ 풀빌라 체크인 15:00",
-      "sub": "- 거제 인더썬셋\n- 경남 거제시 동부면 거제남서로 2407-17\n- 체크아웃 11:00"
-    },
     "poolout-fest1": {
       "id": "poolout-fest1",
       "type": "festival",
@@ -219,7 +213,6 @@
     "rihwain",
     "musical-2",
     "musical-1",
-    "poolvilla",
     "rest"
   ]
 }
