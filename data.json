@@ -102,12 +102,6 @@
       "title": "● 소연",
       "sub": "강남 오후 6시~6시반"
     },
-    "rest": {
-      "id": "rest",
-      "type": "opt",
-      "title": "⌂ 시차 적응·휴식",
-      "sub": ""
-    },
     "matcha": {
       "id": "matcha",
       "type": "date",
@@ -116,7 +110,7 @@
     },
     "rihwain": {
       "id": "rihwain",
-      "type": "opt",
+      "type": "date",
       "title": "♥ 이대 리화인 와플",
       "sub": ""
     },
@@ -252,9 +246,8 @@
     ]
   },
   "pool": [
-    "rest",
-    "rihwain",
     "poolout-fest1",
-    "b_1776874688532"
+    "b_1776874688532",
+    "rihwain"
   ]
 }
